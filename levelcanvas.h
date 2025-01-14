@@ -14,16 +14,21 @@
 #include <QCoreApplication>
 #include <iostream>
 #include <vector>
+#include <map>
 #include <nlohmann/json.hpp>
 
 class Tile : public QPushButton {
     Q_OBJECT
 private:
+    static long objectCounter_;
+    long id_{0};
     std::string type_{""};
 public:
     Tile(QWidget *parent = nullptr);
     std::string type()const {return type_;}
     void setType(std::string type) {type_ = type;}
+    long id() {return id_;}
+    long objectCounter() {return objectCounter_;}
 
 };
 
@@ -31,7 +36,7 @@ class LevelCanvas : public QScrollArea
 {
     Q_OBJECT
 private:
-    std::vector<Tile*> itemsOnMap_;
+    std::map<long, Tile*> itemsOnMap_;
     QString selectedItem_{"Current Item"};
     int gridInterval_{50};
     bool grid_{true};

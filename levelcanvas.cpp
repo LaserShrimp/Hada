@@ -18,7 +18,7 @@ void LevelCanvas::mousePressEvent(QMouseEvent *event) {
     button->move(clickPos);
     button->show();
     std::cout << button->size().width() << std::endl;
-    itemsOnMap_.push_back(button);
+    itemsOnMap_.emplace(button->id(), button);
 }
 
 void LevelCanvas::paintEvent(QPaintEvent *event) {
@@ -50,7 +50,7 @@ std::string LevelCanvas::parseToJson() const {
 
     nlohmann::json array = nlohmann::json::array();
     for(auto& it: itemsOnMap_) {
-        nlohmann::json newElement = {{"Type", it->type()}, {"Width", it->width()}, {"Height", it->height()}, {"X", it->x()}, {"Y", it->y()}};
+        nlohmann::json newElement = {{"Type", it.second->type()}, {"Width", it.second->width()}, {"Height", it.second->height()}, {"X", it.second->x()}, {"Y", it.second->y()}};
         array.push_back(newElement);
     }
     jsonDoc["Map"] = array;
@@ -81,8 +81,9 @@ void LevelCanvas::loadLevel(std::string level) {
         button->setStyleSheet("QPushButton {background:transparent; border:none;}");
         button->setFixedSize(image.size().width(), image.size().height());
         button->show();
-        itemsOnMap_.push_back(button);
+        itemsOnMap_.emplace(button->id(), button);
     }
 }
 
-Tile::Tile(QWidget *parent): QPushButton(parent){}
+long Tile::objectCounter_;
+Tile::Tile(QWidget *parent): QPushButton(parent){id_ = Tile::objectCounter_; Tile::objectCounter_++;}
