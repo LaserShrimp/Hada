@@ -30,6 +30,9 @@ public:
     long id() {return id_;}
     long objectCounter() {return objectCounter_;}
 
+private slots:
+    void onClicked() {id_ = -1; hide();}
+
 };
 
 class LevelCanvas : public QScrollArea
@@ -42,9 +45,10 @@ private:
     bool grid_{true};
 public:
     LevelCanvas();
-    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void loadLevel(std::string level);
+    void cleanItems();
 
     std::string parseToJson() const;
 

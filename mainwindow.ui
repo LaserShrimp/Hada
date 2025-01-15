@@ -88,39 +88,10 @@
          <property name="flat">
           <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0">
+         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0">
           <property name="sizeConstraint">
            <enum>QLayout::SetMaximumSize</enum>
           </property>
-          <item>
-           <widget class="QGroupBox" name="groupBox">
-            <property name="title">
-             <string>Tools</string>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <item>
-              <widget class="QToolButton" name="toolButton_2">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;eraser&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>eraser</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QToolButton" name="toolButton">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;pencil&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>pencil</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
           <item>
            <widget class="QComboBox" name="comboBox">
             <item>

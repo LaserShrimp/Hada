@@ -70,6 +70,7 @@ void MainWindow::on_mapWidth_valueChanged(int value)
 
 void MainWindow::on_saveButton_released()
 {
+    levelCanvas_->cleanItems();
     levelCanvas_->parseToJson();
     QString filename = QFileDialog::getSaveFileName(nullptr, "Save as", ".lvl", "Level Files (*.lvl)");
     if(!filename.isEmpty()) {

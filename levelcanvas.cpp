@@ -2,7 +2,7 @@
 
 LevelCanvas::LevelCanvas() {}
 
-void LevelCanvas::mousePressEvent(QMouseEvent *event) {
+void LevelCanvas::mouseReleaseEvent(QMouseEvent *event) {
     QPoint clickPos = event->pos();
     clickPos.setX((clickPos.x() / gridInterval_) * gridInterval_);
     clickPos.setY((clickPos.y() / gridInterval_) * gridInterval_);
@@ -22,7 +22,6 @@ void LevelCanvas::mousePressEvent(QMouseEvent *event) {
 }
 
 void LevelCanvas::paintEvent(QPaintEvent *event) {
-    qDebug() << "repainting !";
     if(!grid_) { return; }
     QScrollArea::paintEvent(event);
     QPainter painter(viewport());
@@ -43,6 +42,10 @@ void LevelCanvas::paintEvent(QPaintEvent *event) {
     }
 }
 
+/**
+ * @brief LevelCanvas::parseToJson parses the map to a json string. It must have been cleaned beforehand with cleanItems()
+ * @return std::string
+ */
 std::string LevelCanvas::parseToJson() const {
     nlohmann::json jsonDoc;
     jsonDoc["MapWidth"] = width();
@@ -85,5 +88,20 @@ void LevelCanvas::loadLevel(std::string level) {
     }
 }
 
+void LevelCanvas::cleanItems() {
+    for(auto& it: itemsOnMap_) {
+        std::cout << "cleaning" << std::endl;
+        if(it.second->id() == -1) {
+            qDebug() << "clean it";
+            itemsOnMap_.erase(std::find(itemsOnMap_.begin(), itemsOnMap_.end(), it));
+        }
+    }
+}
+
 long Tile::objectCounter_;
-Tile::Tile(QWidget *parent): QPushButton(parent){id_ = Tile::objectCounter_; Tile::objectCounter_++;}
+Tile::Tile(QWidget *parent): QPushButton(parent){
+    id_ = Tile::objectCounter_;
+    Tile::objectCounter_++;
+
+    connect(this, &Tile::clicked, this, &Tile::onClicked);
+}
