@@ -1,4 +1,4 @@
-# Hada, the simple level editor
+# Hada, a simple level editor
 
 ## What is it ?
 Hada, ("make/do" in Korean) is a level editor, initially made for the game Kill Their Balls, and aims to be a simple and adaptable level editor for video games.
