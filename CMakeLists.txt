@@ -45,6 +45,9 @@ else()
 
             levelcanvas.h levelcanvas.cpp levelcanvas.ui
             savewindow.h savewindow.cpp savewindow.ui
+            item.h item.cpp
+            additemwindow.h additemwindow.cpp additemwindow.ui
+
         )
     endif()
 endif()

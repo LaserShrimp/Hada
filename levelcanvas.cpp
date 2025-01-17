@@ -7,7 +7,7 @@ void LevelCanvas::mouseReleaseEvent(QMouseEvent *event) {
     clickPos.setX((clickPos.x() / gridInterval_) * gridInterval_);
     clickPos.setY((clickPos.y() / gridInterval_) * gridInterval_);
     Tile *button = new Tile(this);
-    QPixmap image("./images/"+selectedItem_+".png");
+    QPixmap image("" + projectPath_ + "/images/" + selectedItem_+ ".png");
     QIcon icon(image);
     button->setIcon(icon);
     button->setType(selectedItem_.toStdString());
@@ -73,7 +73,7 @@ void LevelCanvas::loadLevel(std::string level) {
     for(auto& item: json["Map"]) {
         Tile *button = new Tile(this);
         QString strType = QString::fromStdString(item["Type"].get<std::string>());
-        QPixmap image("./images/"+strType+".png");
+        QPixmap image(projectPath_+ "/images/" + strType+".png");
         QIcon icon(image);
         button->setIcon(icon);
         button->setType(item["Type"].get<std::string>());

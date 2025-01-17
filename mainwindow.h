@@ -5,8 +5,11 @@
 #include <QPushButton>
 #include <QString>
 #include <QFileDialog>
+#include <QDebug>
 #include "levelcanvas.h"
 #include "savewindow.h"
+#include "additemwindow.h"
+#include "item.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -43,11 +46,16 @@ private slots:
 
     void on_checkBox_toggled(bool checked);
 
+    void on_addItemButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     LevelCanvas *levelCanvas_;
     QString itemText_;
+    std::map<std::string, Item> availableItems_;
+    QString projectPath_{""};
 
     void setSelectedItem();
+    void loadTiles(std::string tilesFileName);
 };
 #endif // MAINWINDOW_H

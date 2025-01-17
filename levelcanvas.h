@@ -43,12 +43,14 @@ private:
     QString selectedItem_{"Current Item"};
     int gridInterval_{50};
     bool grid_{true};
+    QString projectPath_{""};
 public:
     LevelCanvas();
     void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void loadLevel(std::string level);
     void cleanItems();
+    void setProjectPath(QString path) {projectPath_ = path;}
 
     std::string parseToJson() const;
 
