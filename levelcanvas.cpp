@@ -7,18 +7,18 @@ void LevelCanvas::mouseReleaseEvent(QMouseEvent *event) {
     clickPos.setX((clickPos.x() / gridInterval_) * gridInterval_);
     clickPos.setY((clickPos.y() / gridInterval_) * gridInterval_);
     Tile *button = new Tile(this);
-    QPixmap image("" + projectPath_ + "/images/" + selectedItem_+ ".png");
+    QPixmap image("" + projectPath_ + "/images/" + QString::fromStdString(selectedItem_.name()) + ".png");
     QIcon icon(image);
     button->setIcon(icon);
-    button->setType(selectedItem_.toStdString());
+    button->setType(selectedItem_.name());
     button->setStyleSheet("QPushButton {background:transparent; border:none;}");
-    std::cout << image.size().width() << std::endl;
-    button->setIconSize(image.size());
-    button->setFixedSize(image.size().width(), image.size().height());
+    QSize imageSize(selectedItem_.width(), selectedItem_.height());
+    button->setIconSize(imageSize);
+    button->setFixedSize(imageSize);
     button->move(clickPos);
     button->show();
-    std::cout << button->size().width() << std::endl;
     itemsOnMap_.emplace(button->id(), button);
+    qDebug() << "item added" << QString::fromStdString(selectedItem_.name()) << " " << selectedItem_.width() << " " << selectedItem_.height();
 }
 
 void LevelCanvas::paintEvent(QPaintEvent *event) {
@@ -66,6 +66,7 @@ std::string LevelCanvas::parseToJson() const {
 using namespace nlohmann;
 
 void LevelCanvas::loadLevel(std::string level) {
+    qDebug() << "loading level from: " << projectPath_;
     nlohmann::json json;
     json = nlohmann::json::parse(level);
     setFixedWidth(json["MapWidth"]);
@@ -82,7 +83,7 @@ void LevelCanvas::loadLevel(std::string level) {
         button->setFlat(true);
         button->move(item["X"].get<int>(), item["Y"].get<int>());
         button->setStyleSheet("QPushButton {background:transparent; border:none;}");
-        button->setFixedSize(image.size().width(), image.size().height());
+        button->setFixedSize(size);
         button->show();
         itemsOnMap_.emplace(button->id(), button);
     }

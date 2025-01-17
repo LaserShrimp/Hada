@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::setSelectedItem() {
-    levelCanvas_->setSelectedItem(ui->comboBox->currentText());
+    levelCanvas_->setSelectedItem(availableItems_[ui->comboBox->currentText().toStdString()]);
 }
 
 MainWindow::~MainWindow()
@@ -98,6 +98,7 @@ void MainWindow::on_loadButton_released()
         projectPath_ = fileDir;
         levelCanvas_->setProjectPath(projectPath_);
 
+        // loading the level
         levelFile.open(filename.toStdString());
         std::string jsonString;
         levelFile >> jsonString;
@@ -105,6 +106,18 @@ void MainWindow::on_loadButton_released()
         ui->mapHeight->setValue(levelCanvas_->height());
         ui->mapWidth->setValue(levelCanvas_->width());
         levelFile.close();
+
+        // loading the corresponding tiles in the comboBox
+        std::ifstream tilesFile(fileDir.toStdString() + "/tiles.tiles");
+        std::string strJson;
+        tilesFile >> strJson;
+        qDebug() << QString::fromStdString(strJson);
+        nlohmann::json tilesJson = nlohmann::json::parse(strJson);
+        for(auto& it: tilesJson) {
+            Item newItem{it["Name"].get<std::string>(), "", it["Width"].get<int>(), it["Height"].get<int>()};
+            availableItems_.emplace(newItem.name(), newItem);
+            ui->comboBox->addItem(QString::fromStdString(newItem.name()));
+        }
     }
 }
 
@@ -135,23 +148,39 @@ void MainWindow::loadTiles(std::string tilesFileName) {
 
 void MainWindow::on_addItemButton_clicked()
 {
-    AddItemWindow* addItemWindow = new AddItemWindow(this);
-    addItemWindow->show();
-    if(addItemWindow->exec() == QDialog::Accepted) {
-        QString result(QString::fromStdString(addItemWindow->getNewItem()));
+    AddItemWindow addItemWindow(this);
+    if(addItemWindow.exec() == QDialog::Accepted) {
+        QString result(QString::fromStdString(addItemWindow.getNewItem()));
 
-        // Add the new item to comboBox
+        // Add the new item to comboBox and availableItems_
         nlohmann::json jsonResult = nlohmann::json::parse(result.toStdString());
         qDebug() << "new item specs: " + result;
         ui->comboBox->addItem(QString::fromStdString(jsonResult["Name"].get<std::string>()));
+        nlohmann::json parsedResult = nlohmann::json::parse(result.toStdString());
+        Item newItem(parsedResult["Name"].get<std::string>(), "", parsedResult["Width"].get<int>(), parsedResult["Height"].get<int>());
+        availableItems_.emplace(newItem.name(), newItem);
 
         // save the new item into items file
         if(projectPath_.isEmpty()) {
             projectPath_ = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "", QFileDialog::ShowDirsOnly);
         }
-        std::ofstream tilesFile(projectPath_.toStdString() + "/tiles.tiles", std::ios::app);
-        tilesFile << result.toStdString();
-        tilesFile.close();
+        std::ifstream tilesFileRead(projectPath_.toStdString() + "/tiles.tiles");
+        std::string fileContent;
+        tilesFileRead >> fileContent;
+        nlohmann::json tilesJson = nlohmann::json::array();
+        if(fileContent != "") {
+            for(auto& it: nlohmann::json::parse(fileContent)) {
+                tilesJson.push_back(it);
+            }
+        }
+        tilesJson.push_back(parsedResult);
+        tilesFileRead.close();
+        std::ofstream tilesFileWrite(projectPath_.toStdString() + "/tiles.tiles");
+        tilesFileWrite << tilesJson.dump();
+        tilesFileWrite.close();
+
+        //Make it the new current selected item
+        setSelectedItem();
     }
 }
 

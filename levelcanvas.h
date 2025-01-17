@@ -16,6 +16,7 @@
 #include <vector>
 #include <map>
 #include <nlohmann/json.hpp>
+#include "item.h"
 
 class Tile : public QPushButton {
     Q_OBJECT
@@ -40,7 +41,7 @@ class LevelCanvas : public QScrollArea
     Q_OBJECT
 private:
     std::map<long, Tile*> itemsOnMap_;
-    QString selectedItem_{"Current Item"};
+    Item selectedItem_{};
     int gridInterval_{50};
     bool grid_{true};
     QString projectPath_{""};
@@ -55,8 +56,13 @@ public:
     std::string parseToJson() const;
 
 public slots:
-    void setSelectedItem(QString item) {
-        selectedItem_ = item;
+    void setSelectedItem(QString name, int width, int height) {
+        selectedItem_.setName(name.toStdString());
+        selectedItem_.setWidth(width);
+        selectedItem_.setHeight(height);
+    }
+    void setSelectedItem(Item& item) {
+        setSelectedItem(QString::fromStdString(item.name()), item.width(), item.height());
     }
 
     void setGrid(bool enable) {grid_ = enable;}
