@@ -45,6 +45,8 @@ private:
     int gridInterval_{50};
     bool grid_{true};
     QString projectPath_{""};
+
+    void placeItemOnMap(int const x, int const y, int const width, int const height, QString const strType);
 public:
     LevelCanvas();
     void mouseReleaseEvent(QMouseEvent *event) override;

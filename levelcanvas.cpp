@@ -74,19 +74,38 @@ void LevelCanvas::loadLevel(std::string level) {
     for(auto& item: json["Map"]) {
         Tile *button = new Tile(this);
         QString strType = QString::fromStdString(item["Type"].get<std::string>());
-        QPixmap image(projectPath_+ "/images/" + strType+".png");
-        QIcon icon(image);
-        button->setIcon(icon);
-        button->setType(item["Type"].get<std::string>());
-        QSize size(item["Width"].get<int>(), item["Height"].get<int>());
-        button->setIconSize(size);
-        button->setFlat(true);
-        button->move(item["X"].get<int>(), item["Y"].get<int>());
-        button->setStyleSheet("QPushButton {background:transparent; border:none;}");
-        button->setFixedSize(size);
-        button->show();
-        itemsOnMap_.emplace(button->id(), button);
+        placeItemOnMap(item["X"].get<int>(), item["Y"].get<int>(), item["Width"].get<int>(), item["Height"].get<int>(), strType);
+        // QString strType = QString::fromStdString(item["Type"].get<std::string>());
+        // QPixmap image(projectPath_+ "/images/" + strType+".png");
+        // QIcon icon(image);
+        // button->setIcon(icon);
+        // button->setType(item["Type"].get<std::string>());
+        // QSize size(item["Width"].get<int>(), item["Height"].get<int>());
+        // button->setIconSize(size);
+        // button->setFlat(true);
+        // button->move(item["X"].get<int>(), item["Y"].get<int>());
+        // button->setStyleSheet("QPushButton {background:transparent; border:none;}");
+        // button->setFixedSize(size);
+        // button->show();
+        // itemsOnMap_.emplace(button->id(), button);
+        //placeItemOnMap()
     }
+}
+
+void LevelCanvas::placeItemOnMap(int const x, int const y, int const width, int const height, QString const strType) {
+    Tile *button = new Tile(this);
+    QPixmap image(projectPath_+ "/images/" + strType + ".png");
+    QIcon icon(image);
+    button->setIcon(icon);
+    button->setType(strType.toStdString());
+    QSize size(width, height);
+    button->setIconSize(size);
+    button->setFlat(true);
+    button->move(x, y);
+    button->setStyleSheet("QPushButton {background:transparent; border:none;}");
+    button->setFixedSize(size);
+    button->show();
+    itemsOnMap_.emplace(button->id(), button);
 }
 
 void LevelCanvas::cleanItems() {
