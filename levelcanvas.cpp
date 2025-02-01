@@ -4,20 +4,12 @@ LevelCanvas::LevelCanvas() {}
 
 void LevelCanvas::mouseReleaseEvent(QMouseEvent *event) {
     QPoint clickPos = event->pos();
-    clickPos.setX((clickPos.x() / gridInterval_) * gridInterval_);
-    clickPos.setY((clickPos.y() / gridInterval_) * gridInterval_);
-    Tile *button = new Tile(this);
-    QPixmap image("" + projectPath_ + "/images/" + QString::fromStdString(selectedItem_.name()) + ".png");
-    QIcon icon(image);
-    button->setIcon(icon);
-    button->setType(selectedItem_.name());
-    button->setStyleSheet("QPushButton {background:transparent; border:none;}");
-    QSize imageSize(selectedItem_.width(), selectedItem_.height());
-    button->setIconSize(imageSize);
-    button->setFixedSize(imageSize);
-    button->move(clickPos);
-    button->show();
-    itemsOnMap_.emplace(button->id(), button);
+    if(grid_) {
+        clickPos.setX((clickPos.x() / gridInterval_) * gridInterval_);
+        clickPos.setY((clickPos.y() / gridInterval_) * gridInterval_);
+    }
+    QString strType = QString::fromStdString(selectedItem_.name());
+    placeItemOnMap(clickPos.x(), clickPos.y(), selectedItem_.width(), selectedItem_.height(), strType);
     qDebug() << "item added" << QString::fromStdString(selectedItem_.name()) << " " << selectedItem_.width() << " " << selectedItem_.height();
 }
 
@@ -72,28 +64,19 @@ void LevelCanvas::loadLevel(std::string level) {
     setFixedWidth(json["MapWidth"]);
     setFixedHeight(json["MapHeight"]);
     for(auto& item: json["Map"]) {
-        Tile *button = new Tile(this);
         QString strType = QString::fromStdString(item["Type"].get<std::string>());
         placeItemOnMap(item["X"].get<int>(), item["Y"].get<int>(), item["Width"].get<int>(), item["Height"].get<int>(), strType);
-        // QString strType = QString::fromStdString(item["Type"].get<std::string>());
-        // QPixmap image(projectPath_+ "/images/" + strType+".png");
-        // QIcon icon(image);
-        // button->setIcon(icon);
-        // button->setType(item["Type"].get<std::string>());
-        // QSize size(item["Width"].get<int>(), item["Height"].get<int>());
-        // button->setIconSize(size);
-        // button->setFlat(true);
-        // button->move(item["X"].get<int>(), item["Y"].get<int>());
-        // button->setStyleSheet("QPushButton {background:transparent; border:none;}");
-        // button->setFixedSize(size);
-        // button->show();
-        // itemsOnMap_.emplace(button->id(), button);
-        //placeItemOnMap()
     }
 }
 
 void LevelCanvas::placeItemOnMap(int const x, int const y, int const width, int const height, QString const strType) {
-    Tile *button = new Tile(this);
+    Tile *button = loadTile(this, x, y, width, height, strType);
+    button->show();
+    itemsOnMap_.emplace(button->id(), button);
+}
+
+Tile* LevelCanvas::loadTile(QWidget *parent, int const x, int const y, int const width, int const height, QString const strType) {
+    Tile *button = new Tile(parent);
     QPixmap image(projectPath_+ "/images/" + strType + ".png");
     QIcon icon(image);
     button->setIcon(icon);
@@ -104,8 +87,9 @@ void LevelCanvas::placeItemOnMap(int const x, int const y, int const width, int 
     button->move(x, y);
     button->setStyleSheet("QPushButton {background:transparent; border:none;}");
     button->setFixedSize(size);
-    button->show();
-    itemsOnMap_.emplace(button->id(), button);
+    button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    return button;
 }
 
 void LevelCanvas::cleanItems() {

@@ -6,6 +6,7 @@
 #include <QString>
 #include <QFileDialog>
 #include <QDebug>
+#include <QGridLayout>
 #include "levelcanvas.h"
 #include "savewindow.h"
 #include "additemwindow.h"
@@ -53,6 +54,7 @@ private:
     LevelCanvas *levelCanvas_;
     QString itemText_;
     std::map<std::string, Item> availableItems_;
+    int nextPickItemX{0};
     QString projectPath_{""};
 
     void setSelectedItem();

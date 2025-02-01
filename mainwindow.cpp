@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scrollArea->setWidget(levelCanvas_);
     ui->scrollArea->setWidgetResizable(true);
 
+    QGridLayout *gridLayout = new QGridLayout();
+    ui->pickItemArea->setLayout(gridLayout);
+
     connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::setSelectedItem);
     setSelectedItem();
 }
@@ -87,7 +90,6 @@ void MainWindow::on_saveButton_released()
     }
 }
 
-
 void MainWindow::on_loadButton_released()
 {
     std::ifstream levelFile;
@@ -117,6 +119,23 @@ void MainWindow::on_loadButton_released()
             Item newItem{it["Name"].get<std::string>(), "", it["Width"].get<int>(), it["Height"].get<int>()};
             availableItems_.emplace(newItem.name(), newItem);
             ui->comboBox->addItem(QString::fromStdString(newItem.name()));
+            // Tile* newButton = levelCanvas_->loadTile(ui->pickItemArea, currentX, 0, it["Width"].get<int>(), it["Height"].get<int>(), QString::fromStdString(it["Name"].get<std::string>()));
+            QPushButton *newButton = new QPushButton();
+            QPixmap image(projectPath_+ "/images/" + QString::fromStdString(it["Name"].get<std::string>()) + ".png");
+            QIcon icon(image);
+            newButton->setIcon(icon);
+            QSize size(it["Width"].get<int>(), it["Height"].get<int>());
+            newButton->setIconSize(size);
+            newButton->setFlat(true);
+            newButton->setStyleSheet("QPushButton {background:transparent; border:none; color:transparent;}");
+            newButton->setFixedSize(size);
+            newButton->show();
+            std::string itemName = it["Name"].get<std::string>();
+            connect(newButton, &QPushButton::clicked, this, [&, itemName]{
+                qDebug() << "selected " + QString::fromStdString(itemName);
+                levelCanvas_->setSelectedItem(availableItems_[itemName]);
+            });
+            ui->horizontalLayout_6->addWidget(newButton);
         }
     }
 }
