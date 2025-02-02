@@ -126,9 +126,8 @@ void MainWindow::on_loadButton_released()
             newButton->setIcon(icon);
             QSize size(it["Width"].get<int>(), it["Height"].get<int>());
             newButton->setIconSize(size);
-            newButton->setFlat(true);
-            newButton->setStyleSheet("QPushButton {background:transparent; border:none; color:transparent;}");
-            newButton->setFixedSize(size);
+            newButton->setStyleSheet("QPushButton:hover{background-color:blue;}");
+            // newButton->setFixedSize(size);
             newButton->show();
             std::string itemName = it["Name"].get<std::string>();
             connect(newButton, &QPushButton::clicked, this, [&, itemName]{

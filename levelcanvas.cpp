@@ -85,7 +85,7 @@ Tile* LevelCanvas::loadTile(QWidget *parent, int const x, int const y, int const
     button->setIconSize(size);
     button->setFlat(true);
     button->move(x, y);
-    button->setStyleSheet("QPushButton {background:transparent; border:none;}");
+    button->setStyleSheet("QPushButton {background:transparent; border:none;opacity:0.5;} QPushButton:hover{background-color:rgba(0, 0, 255, 0.5);opacity:0.5;}");
     button->setFixedSize(size);
     button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
