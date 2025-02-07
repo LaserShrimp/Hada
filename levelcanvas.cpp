@@ -106,6 +106,14 @@ void LevelCanvas::cleanItems() {
     }
 }
 
+void LevelCanvas::resetMap() {
+    for(auto& it: itemsOnMap_) {
+        delete it.second;
+    }
+    itemsOnMap_.clear();
+    qDebug() << "items cleared";
+}
+
 long Tile::objectCounter_;
 Tile::Tile(QWidget *parent): QPushButton(parent){
     id_ = Tile::objectCounter_;

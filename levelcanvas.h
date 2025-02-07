@@ -55,6 +55,7 @@ public:
     void cleanItems();
     void setProjectPath(QString path) {projectPath_ = path;}
     Tile* loadTile(QWidget *parent, int const x, int const y, int const width, int const height, QString const strType);
+    void resetMap();
 
     std::string parseToJson() const;
 

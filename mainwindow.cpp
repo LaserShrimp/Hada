@@ -93,6 +93,9 @@ void MainWindow::on_loadButton_released()
         projectPath_ = fileDir;
         levelCanvas_->setProjectPath(projectPath_);
 
+        //erase the current tiles on canvas
+        levelCanvas_->resetMap();
+
         // loading the level
         levelFile.open(filename.toStdString());
         std::string jsonString;
