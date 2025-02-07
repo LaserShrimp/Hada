@@ -9,8 +9,12 @@ void LevelCanvas::mouseReleaseEvent(QMouseEvent *event) {
         clickPos.setY((clickPos.y() / gridInterval_) * gridInterval_);
     }
     QString strType = QString::fromStdString(selectedItem_.name());
-    placeItemOnMap(clickPos.x(), clickPos.y(), selectedItem_.width(), selectedItem_.height(), strType);
-    qDebug() << "item added" << QString::fromStdString(selectedItem_.name()) << " " << selectedItem_.width() << " " << selectedItem_.height();
+    if(!strType.isEmpty()) {
+        placeItemOnMap(clickPos.x(), clickPos.y(), selectedItem_.width(), selectedItem_.height(), strType);
+        qDebug() << "item added" << QString::fromStdString(selectedItem_.name()) << " " << selectedItem_.width() << " " << selectedItem_.height();
+    } else {
+        qDebug() << "No item selected";
+    }
 }
 
 void LevelCanvas::paintEvent(QPaintEvent *event) {

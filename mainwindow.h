@@ -57,7 +57,8 @@ private:
     int nextPickItemX{0};
     QString projectPath_{""};
 
-    void setSelectedItem();
     void loadTiles(std::string tilesFileName);
+    void addAvailableItem(std::string const name, std::string const imagePath, int const width, int const height);
+    void addItemToPickItemArea(QString const name, int const width, int const height);
 };
 #endif // MAINWINDOW_H

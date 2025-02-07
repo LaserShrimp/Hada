@@ -94,7 +94,7 @@
          <property name="flat">
           <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0,0">
+         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,0,0">
           <property name="sizeConstraint">
            <enum>QLayout::SetMaximumSize</enum>
           </property>
@@ -104,9 +104,6 @@
              <string>Add New Item</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBox"/>
           </item>
           <item>
            <widget class="QScrollArea" name="pickItemArea">
@@ -119,7 +116,7 @@
                <x>0</x>
                <y>0</y>
                <width>197</width>
-               <height>176</height>
+               <height>191</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout">
