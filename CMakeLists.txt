@@ -43,11 +43,11 @@ else()
         add_executable(LevelEditor
             ${PROJECT_SOURCES}
 
-            levelcanvas.h levelcanvas.cpp levelcanvas.ui
+            # levelcanvas.h levelcanvas.cpp levelcanvas.ui
             savewindow.h savewindow.cpp savewindow.ui
             item.h item.cpp
             additemwindow.h additemwindow.cpp additemwindow.ui
-
+            canvaslayer.h canvaslayer.cpp canvaslayer.ui
         )
     endif()
 endif()

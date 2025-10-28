@@ -7,7 +7,8 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QGridLayout>
-#include "levelcanvas.h"
+#include <vector>
+#include "canvaslayer.h"
 #include "savewindow.h"
 #include "additemwindow.h"
 #include "item.h"
@@ -35,11 +36,7 @@ private slots:
 
     void on_mapWidth_sliderReleased();
 
-    void on_mapWidth_valueChanged(int value);
-
     void on_mapHeight_sliderMoved(int position);
-
-    void on_mapHeight_valueChanged(int value);
 
     void on_saveButton_released();
 
@@ -49,16 +46,29 @@ private slots:
 
     void on_addItemButton_clicked();
 
+    void on_addLayerButton_clicked();
+
+    void on_deleteLayerButton_clicked();
+
 private:
     Ui::MainWindow *ui;
-    LevelCanvas *levelCanvas_;
+    std::vector<CanvasLayer*> levelCanvas_;
+    std::vector<QPushButton*> layerButtons_;
     QString itemText_;
     std::map<std::string, Item> availableItems_;
     int nextPickItemX{0};
     QString projectPath_{""};
+    int focusedLayer_{0};
+    int mapWidth_{1000};
+    int mapHeight_{1000};
 
     void loadTiles(std::string tilesFileName);
     void addAvailableItem(std::string const name, std::string const imagePath, int const width, int const height);
     void addItemToPickItemArea(QString const name, int const width, int const height);
+    void addLayer();
+    void deleteLayer(int layerToDelete);
+    void setFocusOnLayer(int layerToFocus);
+    void setMapWidth(int newWidth);
+    void setMapHeight(int newHeight);
 };
 #endif // MAINWINDOW_H

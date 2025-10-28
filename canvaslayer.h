@@ -1,5 +1,5 @@
-#ifndef LEVELCANVAS_H
-#define LEVELCANVAS_H
+#ifndef CANVASLAYER_H
+#define CANVASLAYER_H
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -19,6 +19,10 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 
+namespace Ui {
+class CanvasLayer;
+}
+
 class Tile : public QPushButton
 {
     Q_OBJECT
@@ -26,6 +30,7 @@ private:
     static long objectCounter_;
     long id_{0};
     std::string type_{""};
+    QWidget* foreground_;
 
 public:
     Tile(QWidget *parent = nullptr);
@@ -33,6 +38,7 @@ public:
     void setType(std::string type) { type_ = type; }
     long id() { return id_; }
     long objectCounter() { return objectCounter_; }
+    void setFixedSize(int w, int h);
 
 private slots:
     void onClicked()
@@ -42,7 +48,7 @@ private slots:
     }
 };
 
-class LevelCanvas : public QWidget
+class CanvasLayer : public QWidget
 {
     Q_OBJECT
 private:
@@ -51,12 +57,17 @@ private:
     int gridInterval_{50};
     bool grid_{true};
     QString projectPath_{""};
+    std::string name_{""};
+    Ui::CanvasLayer *ui;
 
     void placeItemOnMap(
         int const x, int const y, int const width, int const height, QString const strType);
 
 public:
-    LevelCanvas(QWidget *parent = nullptr);
+    CanvasLayer(QWidget *parent = nullptr);
+    ~CanvasLayer();
+
+    void setName(std::string name) {name_ = name;}
     void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void loadLevel(std::string level);
@@ -90,4 +101,4 @@ public slots:
     void setGridInterval(int newInterval) { gridInterval_ = newInterval; }
 };
 
-#endif // LEVELCANVAS_H
+#endif // CANVASLAYER_H

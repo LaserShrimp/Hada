@@ -67,10 +67,11 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>769</width>
+            <width>762</width>
             <height>659</height>
            </rect>
           </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_8"/>
          </widget>
         </widget>
        </item>
@@ -115,8 +116,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>197</width>
-               <height>191</height>
+               <width>204</width>
+               <height>137</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout">
@@ -286,6 +287,46 @@
                 </layout>
                </item>
               </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QPushButton" name="addLayerButton">
+                 <property name="text">
+                  <string>Add Layer</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="deleteLayerButton">
+                 <property name="text">
+                  <string>Delete Layer</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QScrollArea" name="scrollArea_2">
+               <property name="widgetResizable">
+                <bool>true</bool>
+               </property>
+               <widget class="QWidget" name="scrollAreaWidgetContents_4">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>180</width>
+                  <height>68</height>
+                 </rect>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_6">
+                 <item>
+                  <layout class="QVBoxLayout" name="layers_area"/>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
              </item>
             </layout>
            </widget>

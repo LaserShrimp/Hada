@@ -8,10 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     //setup the canvas
-    levelCanvas_ = new LevelCanvas();
-    levelCanvas_->setMinimumSize(1000, 1000);
-    ui->scrollArea->setWidget(levelCanvas_);
-    ui->scrollArea->setWidgetResizable(true);
+    // addLayer();
 
     QGridLayout *gridLayout = new QGridLayout();
     ui->pickItemArea->setLayout(gridLayout);
@@ -24,13 +21,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_gridSpin_valueChanged(int arg1)
 {
-    levelCanvas_->setGridInterval(arg1);
+    for(auto& it: levelCanvas_) {
+        it->setGridInterval(arg1);
+    }
 }
 
 
 void MainWindow::on_mapHeight_sliderReleased()
 {
-    levelCanvas_->setFixedHeight(ui->mapHeight->value());
+    setMapHeight(ui->mapHeight->value());
 }
 
 
@@ -42,7 +41,7 @@ void MainWindow::on_mapWidth_sliderMoved(int position)
 
 void MainWindow::on_mapWidth_sliderReleased()
 {
-    levelCanvas_->setFixedWidth(ui->mapWidth->value());
+    setMapWidth(ui->mapWidth->value());
 }
 
 
@@ -52,23 +51,10 @@ void MainWindow::on_mapHeight_sliderMoved(int position)
     ui->mapHeightValue->setText(QString::number(position));
 }
 
-
-void MainWindow::on_mapHeight_valueChanged(int value)
-{
-
-}
-
-
-void MainWindow::on_mapWidth_valueChanged(int value)
-{
-
-}
-
-
 void MainWindow::on_saveButton_released()
 {
-    levelCanvas_->cleanItems();
-    levelCanvas_->parseToJson();
+    levelCanvas_[0]->cleanItems();
+    levelCanvas_[0]->parseToJson();
     QString filename = QFileDialog::getSaveFileName(nullptr, "Save as", ".lvl", "Level Files (*.lvl)");
     if(!filename.isEmpty()) {
         std::ofstream saveFile;
@@ -78,7 +64,7 @@ void MainWindow::on_saveButton_released()
             extension = "";
         }
         saveFile.open(filename.toStdString() + extension.toStdString());
-        saveFile << levelCanvas_->parseToJson();
+        saveFile << levelCanvas_[0]->parseToJson();
         saveFile.close();
     }
 }
@@ -91,18 +77,18 @@ void MainWindow::on_loadButton_released()
     QString filename{fileInfos.absoluteFilePath()};
     if(!filename.isEmpty()) {
         projectPath_ = fileDir;
-        levelCanvas_->setProjectPath(projectPath_);
+        levelCanvas_[0]->setProjectPath(projectPath_);
 
         //erase the current tiles on canvas
-        levelCanvas_->resetMap();
+        levelCanvas_[0]->resetMap();
 
         // loading the level
         levelFile.open(filename.toStdString());
         std::string jsonString;
         levelFile >> jsonString;
-        levelCanvas_->loadLevel(jsonString);
-        ui->mapHeight->setValue(levelCanvas_->height());
-        ui->mapWidth->setValue(levelCanvas_->width());
+        levelCanvas_[0]->loadLevel(jsonString);
+        ui->mapHeight->setValue(levelCanvas_[0]->height());
+        ui->mapWidth->setValue(levelCanvas_[0]->width());
         levelFile.close();
 
         // loading the corresponding tiles in the comboBox
@@ -138,7 +124,9 @@ void MainWindow::addItemToPickItemArea(QString const name, int const width, int 
     std::string itemName = name.toStdString();
     connect(newButton, &QPushButton::clicked, this, [&, itemName]{
         qDebug() << "selected " + QString::fromStdString(itemName);
-        levelCanvas_->setSelectedItem(availableItems_[itemName]);
+        for(auto& it: levelCanvas_) {
+            it->setSelectedItem(availableItems_[itemName]);
+        }
     });
     ui->horizontalLayout_6->addWidget(newButton);
 }
@@ -146,7 +134,9 @@ void MainWindow::addItemToPickItemArea(QString const name, int const width, int 
 
 void MainWindow::on_checkBox_toggled(bool checked)
 {
-    levelCanvas_->setGrid(checked);
+    for(auto& it: levelCanvas_) {
+        it->setGrid(checked);
+    }
 }
 
 void MainWindow::loadTiles(std::string tilesFileName) {
@@ -204,3 +194,71 @@ void MainWindow::on_addItemButton_clicked()
     }
 }
 
+#include <string>
+
+// TODO: currently working on this feature
+void MainWindow::addLayer(){
+    int nbLayers = levelCanvas_.size();
+    CanvasLayer* newLayer = new CanvasLayer(ui->scrollArea);
+    newLayer->setProjectPath(projectPath_);
+    newLayer->setMinimumSize(mapWidth_, mapHeight_);
+    newLayer->setFixedSize(mapWidth_, mapHeight_);
+    newLayer->move(0, 0);
+    newLayer->show();
+
+    // add the layer in layer manager panel
+    std::string newLayerName = "layer_" + std::to_string(nbLayers);
+    newLayer->setName(newLayerName);
+    QPushButton* newLayerButton = new QPushButton(QString::fromStdString(newLayerName));
+    connect(newLayerButton, &QPushButton::clicked, [&, nbLayers]() {
+                setFocusOnLayer(nbLayers);
+                qDebug() << "focus set on layer: " + QString::number(nbLayers);
+            });
+    levelCanvas_.push_back(newLayer);
+    layerButtons_.push_back(newLayerButton);
+    ui->layers_area->addWidget(newLayerButton);
+    setFocusOnLayer(nbLayers);
+}
+
+void MainWindow::deleteLayer(int layerToDelete) {
+    ui->layers_area->removeWidget(layerButtons_[layerToDelete]);
+    layerButtons_.erase(layerButtons_.begin()+layerToDelete);
+    setFocusOnLayer(0);
+}
+
+void MainWindow::setFocusOnLayer(int layerToFocus) {
+    focusedLayer_ = layerToFocus;
+    for(int i = 0; i < levelCanvas_.size(); i++) {
+        if (i == layerToFocus) {
+            levelCanvas_[i]->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        } else {
+            levelCanvas_[i]->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+        }
+    }
+}
+
+void MainWindow::on_addLayerButton_clicked()
+{
+    addLayer();
+}
+
+
+void MainWindow::on_deleteLayerButton_clicked()
+{
+    deleteLayer(focusedLayer_);
+    setFocusOnLayer(0);
+}
+
+void MainWindow::setMapWidth(int newWidth) {
+    mapWidth_ = newWidth;
+    for(auto& it: levelCanvas_) {
+        it->setFixedWidth(mapWidth_);
+    }
+}
+
+void MainWindow::setMapHeight(int mapHeight) {
+    mapHeight_ = mapHeight;
+    for(auto& it: levelCanvas_) {
+        it->setFixedHeight(mapHeight_);
+    }
+}

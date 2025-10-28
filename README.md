@@ -17,6 +17,8 @@ Just save you level file where you want and then use the json data as you want.
 - an editor to modify the properties of the current selected tile.
 - an interface to add your own objects (they are now hardcoded and it's not easy to set up your own tiles, unless you directly change the code (which makes tools unusable for non programmers and inconvenient for programmers)).
 - let the user the choice between several data formats.
+- add all properties the user wants
+- several layers to a level
 - and so on...
 
 ## Can I contribute ?
