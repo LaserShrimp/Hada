@@ -4,7 +4,7 @@
 
 [x] resize canvas
 [x] paint grid
-- save/load a map (handling newly introduced layers)
-- allow deleting layers
-- allow custom object properties
-- allow deleting tiles
+[x] save/load a map (handling newly introduced layers)
+[ ] allow deleting layers
+[ ] allow custom object properties
+[ ] allow deleting tiles

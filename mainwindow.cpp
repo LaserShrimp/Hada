@@ -93,7 +93,7 @@ void MainWindow::on_loadButton_released()
         return;
     }
 
-    resetMap();
+    resetProject();
     for(auto& it: jsonLevel["Layers"]) {
         CanvasLayer* currentLayer = new CanvasLayer(ui->canvas);
         currentLayer->setProjectPath(projectPath_); // If we don't set the layer's project path here, the tiles' images won't load
@@ -140,7 +140,7 @@ void MainWindow::addItemToPickItemArea(QString const name, int const width, int 
             it->setSelectedItem(availableItems_[itemName]);
         }
     });
-    ui->horizontalLayout_6->addWidget(newButton);
+    ui->pickItemAreaLayout->addWidget(newButton);
 }
 
 
@@ -167,6 +167,14 @@ void MainWindow::loadTiles(std::string tilesFileName) {
         std::string newItemName = it["Name"].get<std::string>();
         addItemToPickItemArea(QString::fromStdString(newItemName), it["Width"].get<int>(), it["Height"].get<int>());
     }
+}
+
+void MainWindow::resetProject() {
+    while(ui->pickItemAreaLayout->count() > 0) {
+        auto item = ui->pickItemAreaLayout->takeAt(0);
+        delete item;
+    }
+    resetMap();
 }
 
 void MainWindow::resetMap() {

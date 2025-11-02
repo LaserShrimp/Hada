@@ -72,6 +72,7 @@ private:
     void setMapWidth(int newWidth);
     void setMapHeight(int newHeight);
     void updateCanvasSize();
+    void resetProject();
     void resetMap();
 };
 #endif // MAINWINDOW_H
