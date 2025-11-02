@@ -6,10 +6,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    //setup the canvas
-    // addLayer();
-
     QGridLayout *gridLayout = new QGridLayout();
     ui->pickItemArea->setLayout(gridLayout);
 }
@@ -29,7 +25,7 @@ void MainWindow::on_gridSpin_valueChanged(int arg1)
 
 void MainWindow::on_mapHeight_sliderReleased()
 {
-    setMapHeight(ui->mapHeight->value());
+    updateCanvasSize();
 }
 
 
@@ -41,7 +37,7 @@ void MainWindow::on_mapWidth_sliderMoved(int position)
 
 void MainWindow::on_mapWidth_sliderReleased()
 {
-    setMapWidth(ui->mapWidth->value());
+    updateCanvasSize();
 }
 
 
@@ -53,57 +49,73 @@ void MainWindow::on_mapHeight_sliderMoved(int position)
 
 void MainWindow::on_saveButton_released()
 {
-    levelCanvas_[0]->cleanItems();
-    levelCanvas_[0]->parseToJson();
     QString filename = QFileDialog::getSaveFileName(nullptr, "Save as", ".lvl", "Level Files (*.lvl)");
-    if(!filename.isEmpty()) {
-        std::ofstream saveFile;
-        QString extension = ".lvl";
-        //Avoid ".lvl" redundance
-        if(filename.contains(".lvl")) {
-            extension = "";
-        }
-        saveFile.open(filename.toStdString() + extension.toStdString());
-        saveFile << levelCanvas_[0]->parseToJson();
-        saveFile.close();
+    if(filename.isEmpty()) {
+        qDebug("[on_saveButton_released()]Filename is empty...");
+        return;
     }
+    std::ofstream saveFile;
+    QString extension = ".lvl";
+    //Avoid ".lvl" redundance
+    if(filename.contains(".lvl")) {
+        extension = "";
+    }
+    saveFile.open(filename.toStdString() + extension.toStdString());
+    nlohmann::json builtJson;
+    nlohmann::json layersArray = nlohmann::json::array();
+    for(auto& it: levelCanvas_) {
+        it->cleanItems();
+        layersArray.push_back(it->buildJson());
+    }
+    builtJson.emplace("Layers", layersArray);
+    saveFile << builtJson.dump();
 }
 
 void MainWindow::on_loadButton_released()
 {
-    std::ifstream levelFile;
     QFileInfo fileInfos(QFileDialog::getOpenFileName(nullptr, "Open document", "", "Level Files (*.lvl)"));
     QString fileDir{fileInfos.absoluteDir().absolutePath()};
     QString filename{fileInfos.absoluteFilePath()};
-    if(!filename.isEmpty()) {
-        projectPath_ = fileDir;
-        levelCanvas_[0]->setProjectPath(projectPath_);
+    if(filename.isEmpty()) {
+        qDebug() << "level file path is empty";
+        return;
+    }
 
-        //erase the current tiles on canvas
-        levelCanvas_[0]->resetMap();
+    std::ifstream levelFile;
+    levelFile.open(filename.toStdString());
+    std::string jsonString;
+    levelFile >> jsonString;
 
-        // loading the level
-        levelFile.open(filename.toStdString());
-        std::string jsonString;
-        levelFile >> jsonString;
-        levelCanvas_[0]->loadLevel(jsonString);
-        ui->mapHeight->setValue(levelCanvas_[0]->height());
-        ui->mapWidth->setValue(levelCanvas_[0]->width());
-        levelFile.close();
+    nlohmann::json jsonLevel = nlohmann::json::parse(jsonString);
 
-        // loading the corresponding tiles in the comboBox
-        std::ifstream tilesFile(fileDir.toStdString() + "/tiles.tiles");
-        std::string strJson;
-        tilesFile >> strJson;
-        qDebug() << QString::fromStdString(strJson);
-        nlohmann::json tilesJson = nlohmann::json::parse(strJson);
-        for(auto& it: tilesJson) {
-            addAvailableItem(it["Name"].get<std::string>(), "", it["Width"].get<int>(), it["Height"].get<int>());
-            std::string itemName = it["Name"].get<std::string>();
-            int w = it["Width"].get<int>();
-            int h = it["Height"].get<int>();
-            addItemToPickItemArea(QString::fromStdString(itemName), w, h);
-        }
+    projectPath_ = fileDir;
+    if(jsonLevel.find("Layers") == jsonLevel.end()) {
+        return;
+    }
+
+    resetMap();
+    for(auto& it: jsonLevel["Layers"]) {
+        CanvasLayer* currentLayer = new CanvasLayer(ui->canvas);
+        currentLayer->setProjectPath(projectPath_); // If we don't set the layer's project path here, the tiles' images won't load
+        currentLayer->loadLayer(it.dump());
+        ui->mapHeight->setValue(currentLayer->height());
+        ui->mapWidth->setValue(currentLayer->width());
+        addLayer(currentLayer);
+    }
+    levelFile.close();
+
+    // loading the corresponding tiles in the comboBox
+    std::ifstream tilesFile(fileDir.toStdString() + "/tiles.tiles");
+    std::string strJson;
+    tilesFile >> strJson;
+    qDebug() << QString::fromStdString(strJson);
+    nlohmann::json tilesJson = nlohmann::json::parse(strJson);
+    for(auto& it: tilesJson) {
+        addAvailableItem(it["Name"].get<std::string>(), "", it["Width"].get<int>(), it["Height"].get<int>());
+        std::string itemName = it["Name"].get<std::string>();
+        int w = it["Width"].get<int>();
+        int h = it["Height"].get<int>();
+        addItemToPickItemArea(QString::fromStdString(itemName), w, h);
     }
 }
 
@@ -157,6 +169,23 @@ void MainWindow::loadTiles(std::string tilesFileName) {
     }
 }
 
+void MainWindow::resetMap() {
+    for(auto& it: levelCanvas_) {
+        delete it;
+    }
+    levelCanvas_.clear();
+    for(auto& it: layerButtons_) {
+        ui->layers_area->removeWidget(it);
+        delete it;
+    }
+    layerButtons_.clear();
+
+    // for(auto& it: availableItems_) {
+    //     delete it.second;
+    // }
+    availableItems_.clear();
+}
+
 
 void MainWindow::on_addItemButton_clicked()
 {
@@ -196,13 +225,10 @@ void MainWindow::on_addItemButton_clicked()
 
 #include <string>
 
-// TODO: currently working on this feature
 void MainWindow::addLayer(){
     int nbLayers = levelCanvas_.size();
-    CanvasLayer* newLayer = new CanvasLayer(ui->scrollArea);
+    CanvasLayer* newLayer = new CanvasLayer(ui->canvas);
     newLayer->setProjectPath(projectPath_);
-    newLayer->setMinimumSize(mapWidth_, mapHeight_);
-    newLayer->setFixedSize(mapWidth_, mapHeight_);
     newLayer->move(0, 0);
     newLayer->show();
 
@@ -218,11 +244,35 @@ void MainWindow::addLayer(){
     layerButtons_.push_back(newLayerButton);
     ui->layers_area->addWidget(newLayerButton);
     setFocusOnLayer(nbLayers);
+    updateCanvasSize();
+}
+
+void MainWindow::addLayer(CanvasLayer* layerToAdd) {
+    int nbLayers = levelCanvas_.size();
+    layerToAdd->setProjectPath(projectPath_);
+    layerToAdd->move(0,0);
+    layerToAdd->show();
+
+    std::string newLayerName = "layer_" + std::to_string(nbLayers);
+    layerToAdd->setName(newLayerName);
+    QPushButton* newLayerButton = new QPushButton(QString::fromStdString(newLayerName));
+    connect(newLayerButton, &QPushButton::clicked, [&, nbLayers]() {
+        setFocusOnLayer(nbLayers);
+        qDebug() << "focus set on layer: " + QString::number(nbLayers);
+    });
+    levelCanvas_.push_back(layerToAdd);
+    layerButtons_.push_back(newLayerButton);
+    ui->layers_area->addWidget(newLayerButton);
+    setFocusOnLayer(nbLayers);
+    updateCanvasSize();
 }
 
 void MainWindow::deleteLayer(int layerToDelete) {
     ui->layers_area->removeWidget(layerButtons_[layerToDelete]);
+    delete layerButtons_[layerToDelete];
     layerButtons_.erase(layerButtons_.begin()+layerToDelete);
+    delete levelCanvas_[layerToDelete];
+    levelCanvas_.erase(levelCanvas_.begin()+layerToDelete);
     setFocusOnLayer(0);
 }
 
@@ -261,4 +311,12 @@ void MainWindow::setMapHeight(int mapHeight) {
     for(auto& it: levelCanvas_) {
         it->setFixedHeight(mapHeight_);
     }
+}
+
+void MainWindow::updateCanvasSize() {
+    int currentW = ui->mapWidth->value();
+    int currentH = ui->mapHeight->value();
+    setMapWidth(currentW);
+    setMapHeight(currentH);
+    ui->canvas->setFixedSize(currentW, currentH);
 }

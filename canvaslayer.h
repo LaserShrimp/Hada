@@ -70,7 +70,7 @@ public:
     void setName(std::string name) {name_ = name;}
     void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-    void loadLevel(std::string level);
+    void loadLayer(std::string level);
     void cleanItems();
     void setProjectPath(QString path) { projectPath_ = path; }
     Tile *loadTile(QWidget *parent,
@@ -81,7 +81,8 @@ public:
                    QString const strType);
     void resetMap();
 
-    std::string parseToJson() const;
+    std::string parseToJsonString() const;
+    nlohmann::json buildJson() const;
 
 public slots:
     void setSelectedItem(QString name, int width, int height)
@@ -95,9 +96,7 @@ public slots:
         setSelectedItem(QString::fromStdString(item.name()), item.width(), item.height());
     }
 
-    // setAttribute(Qt::WA_TransparentForMouseEvents, enable); --> permet de rendre l'élément transparent pour les events de souris => possible de mettre plusieurs layers
-
-    void setGrid(bool enable) { grid_ = enable; }
+    void setGrid(bool enable) { grid_ = enable; update();} //update works but provokes a weird behaviour when loading a map
     void setGridInterval(int newInterval) { gridInterval_ = newInterval; }
 };
 

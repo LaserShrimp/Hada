@@ -36,37 +36,41 @@ void CanvasLayer::mouseReleaseEvent(QMouseEvent *event)
 
 void CanvasLayer::paintEvent(QPaintEvent *event)
 {
-    // if (!grid_) {
-    //     return;
-    // }
-    // QWidget::paintEvent(event);
-    // QPainter painter(viewport());
+    if (!grid_) {
+        return;
+    }
+    QWidget::paintEvent(event);
+    QPainter painter(this);
 
-    // QPen pen(Qt::lightGray);
-    // pen.setStyle(Qt::DashLine);
-    // painter.setPen(pen);
+    QPen pen(Qt::lightGray);
+    pen.setStyle(Qt::DashLine);
+    painter.setPen(pen);
 
-    // int width = this->width();
-    // int height = this->height();
+    int width = this->width();
+    int height = this->height();
 
-    // for (int i = 0; i < width; i += gridInterval_) {
-    //     painter.drawLine(i, 0, i, height);
-    // }
+    for (int i = 0; i < width; i += gridInterval_) {
+        painter.drawLine(i, 0, i, height);
+    }
 
-    // for (int i = 0; i < height; i += gridInterval_) {
-    //     painter.drawLine(0, i, width, i);
-    // }
+    for (int i = 0; i < height; i += gridInterval_) {
+        painter.drawLine(0, i, width, i);
+    }
 }
 
 /**
  * @brief LevelCanvas::parseToJson parses the map to a json string. It must have been cleaned beforehand with cleanItems()
  * @return std::string
  */
-std::string CanvasLayer::parseToJson() const
+std::string CanvasLayer::parseToJsonString() const
 {
-    nlohmann::json jsonDoc;
-    jsonDoc["MapWidth"] = width();
-    jsonDoc["MapHeight"] = height();
+    return buildJson().dump();
+}
+
+nlohmann::json CanvasLayer::buildJson() const {
+    nlohmann::json result;
+    result["MapWidth"] = width();
+    result["MapHeight"] = height();
 
     nlohmann::json array = nlohmann::json::array();
     for (auto &it : itemsOnMap_) {
@@ -77,22 +81,18 @@ std::string CanvasLayer::parseToJson() const
                                      {"Y", it.second->y()}};
         array.push_back(newElement);
     }
-    jsonDoc["Map"] = array;
-
-    std::string parsed = jsonDoc.dump();
-
-    return parsed;
+    result["Map"] = array;
+    return result;
 }
 
 using namespace nlohmann;
 
-void CanvasLayer::loadLevel(std::string level)
+void CanvasLayer::loadLayer(std::string layer)
 {
-    qDebug() << "loading level from: " << projectPath_;
+    qDebug() << "loading layer from: " << projectPath_;
     nlohmann::json json;
-    json = nlohmann::json::parse(level);
-    setFixedWidth(json["MapWidth"]);
-    setFixedHeight(json["MapHeight"]);
+    json = nlohmann::json::parse(layer);
+    setFixedSize(json["MapWidth"], json["MapHeight"]);
     for (auto &item : json["Map"]) {
         QString strType = QString::fromStdString(item["Type"].get<std::string>());
         placeItemOnMap(item["X"].get<int>(),
@@ -162,7 +162,7 @@ Tile::Tile(QWidget *parent)
     foreground_ = new QWidget(this);
     foreground_->move(0, 0);
     foreground_->setFixedSize(width(), height());
-    foreground_->setStyleSheet("QWidget:hover{background-color:rgba(100, 0, 0, 0.5);}");
+    foreground_->setStyleSheet("QWidget:hover{background-color:rgba(155, 0, 155, 0.3);}");
     id_ = Tile::objectCounter_;
     Tile::objectCounter_++;
 

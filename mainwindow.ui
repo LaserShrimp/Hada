@@ -71,7 +71,25 @@
             <height>659</height>
            </rect>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_8"/>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QWidget" name="canvas" native="true">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_9"/>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>

@@ -66,9 +66,12 @@ private:
     void addAvailableItem(std::string const name, std::string const imagePath, int const width, int const height);
     void addItemToPickItemArea(QString const name, int const width, int const height);
     void addLayer();
+    void addLayer(CanvasLayer* layerToAdd);
     void deleteLayer(int layerToDelete);
     void setFocusOnLayer(int layerToFocus);
     void setMapWidth(int newWidth);
     void setMapHeight(int newHeight);
+    void updateCanvasSize();
+    void resetMap();
 };
 #endif // MAINWINDOW_H

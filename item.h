@@ -13,6 +13,7 @@ private:
 public:
     Item();
     Item(std::string name, std::string imagePath, int width, int height);
+    ~Item() = default;
 
     void setName(std::string name) {name_ = name;}
     void setImagePath(std::string path) {imagePath_ = path;}
