@@ -49,6 +49,8 @@ else()
             additemwindow.h additemwindow.cpp additemwindow.ui
             canvaslayer.h canvaslayer.cpp canvaslayer.ui
             layerbutton.h layerbutton.cpp layerbutton.ui
+            propertyrow.h propertyrow.cpp propertyrow.ui
+
         )
     endif()
 endif()
